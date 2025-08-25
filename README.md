@@ -33,7 +33,7 @@ To generate simulation results, run `simulate_*.ipynb` or `simulate_*.py`. These
 
 To analyze simulation results and generate figures, run `analyze_*.ipynb`. This will require specifying the common filename identifier.
 
-The `models.py` and `workers.py` modules, and the `simulate_*.ipynb` or `simulate_*.py` script, were developed to customizable. They can be modified to adjust sampling logic and metric computation.
+The `models.py` and `workers.py` modules, and the `simulate_*.ipynb` or `simulate_*.py` script, were developed to be customizable. They can be modified to adjust sampling logic and metric computation.
 
 ## **Scripts**
 
