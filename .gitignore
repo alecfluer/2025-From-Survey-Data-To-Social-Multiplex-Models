@@ -205,10 +205,3 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-
-# Exclude raw data
-data\
-
-# Exclude synthetic results and plots
-results\synthetic\
-results\synthetic\plots\
