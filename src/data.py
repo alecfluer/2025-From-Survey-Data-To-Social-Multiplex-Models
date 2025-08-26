@@ -149,3 +149,29 @@ def get_unique_ids(metadata, net_size=None, deg_seq_corr=None, char_dist=None, h
     if homophily is not None:
         df = df[df["homophily"] == homophily]
     return df["unique_id"].unique()
+
+def create_table(dataframe, metric, row_param, col_param):
+    blocks = []
+    for model in dataframe['model_id'].unique():
+        subdf = dataframe[dataframe['model_id'] == model]
+        grouped = subdf.groupby([row_param, col_param])[metric].agg(['mean', 'std']).round(3)
+        formatted = grouped.apply(lambda x: f"{x['mean']} ± {x['std']}", axis=1)
+        grid = formatted.unstack(col_param)
+        grid = grid.sort_index(ascending=False)
+        header = pd.DataFrame([[f"{row_param} / {col_param}"] + list(grid.columns)], columns=[grid.index.name] + list(grid.columns))
+        grid = grid.reset_index()
+        block = pd.concat([header, grid], ignore_index=True)
+        model_row = pd.DataFrame([[f"{model}"] + [""] * (block.shape[1] - 1)], columns=block.columns)
+        block = pd.concat([model_row, block], ignore_index=True)
+        blocks.append(block)
+    return blocks
+
+def export_tables(dataframe, configuration, filename):
+    with pd.ExcelWriter(filename) as writer:
+        for entry in configuration:
+            metric = entry["metric"]
+            row_param, col_param = entry["params"]
+            sheet_name = entry["sheet"]
+            blocks = create_table(dataframe, metric, row_param, col_param)
+            stacked = pd.concat(blocks, ignore_index=True)
+            stacked.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
