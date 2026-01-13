@@ -16,6 +16,12 @@ def reconstruct_degree_sequences(dataframe):
     degree_sequence_2 = np.array(degree_sequence_2)
     return degree_sequence_1, degree_sequence_2
 
+def order_degree_sequence_by_node_density(probabilities, degree_sequence, radius=0.05):
+    sda_probabilities = probabilities.sum(axis=1) / probabilities.sum(axis=1).sum()
+    ordered_degree_sequence = np.zeros(len(degree_sequence), dtype=int)
+    ordered_degree_sequence[np.argsort(sda_probabilities)] = np.sort(degree_sequence)
+    return ordered_degree_sequence
+
 def sample_synthetic_locations(size, uniform_proportion, cluster_proportions, cluster_spreads, square_size=1/np.sqrt(2), margin=0):
     uniform_size = int(size * uniform_proportion)
     cluster_sizes = (np.array(cluster_proportions) * size).astype(int)
@@ -53,6 +59,15 @@ def sample_geographic_locations(size, dataframe):
                 break
     locations = np.array(sampled_points)
     return locations
+
+def number_of_dropped_edges(dataframe):
+    E1 = dataframe["number_of_net1_edges_global_pre"]
+    E2 = dataframe["number_of_net2_edges_global_pre"]
+    L1 = dataframe["number_of_net1_edges_global_post"]
+    L2 = dataframe["number_of_net2_edges_global_post"]
+    dataframe["number_of_net1_dropped_edges"] = E1 - L1
+    dataframe["number_of_net2_dropped_edges"] = E2 - L2
+    return dataframe
 
 def proportion_of_dropped_edges(dataframe):
     E1 = dataframe["number_of_net1_edges_global_pre"]

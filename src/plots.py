@@ -7,6 +7,96 @@ import pandas as pd
 import seaborn as sns
 import shapely
 
+def plot_three_panel(locations, b_vals, h_vals, fixed_b, fixed_h, colormap=None, color=None):
+    custom = {
+        "text.usetex": False,
+        "pdf.fonttype": 42,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman"],
+        "mathtext.fontset": "stix",
+        "font.size": 8.5,
+        "legend.fontsize": 8.5,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.axisbelow": True,
+        "axes.linewidth": 0.5,
+        "axes.edgecolor": "black",
+        "grid.linewidth": 0.5,
+        "grid.color": "black",
+        "patch.linewidth": 0.5,
+        "patch.edgecolor": "black",
+        "xtick.major.width": 0.5,
+        "ytick.major.width": 0.5,
+        "xtick.minor.width": 0.5,
+        "ytick.minor.width": 0.5,
+        "xtick.major.size": 3.0,
+        "ytick.major.size": 3.0,
+        "xtick.minor.size": 2.0,
+        "ytick.minor.size": 2.0,
+        "xtick.direction": "out",
+        "ytick.direction": "out",
+        "xtick.color": "black",
+        "ytick.color": "black",
+        "xtick.labelsize": 8.5,
+        "ytick.labelsize": 8.5
+    }
+
+    distances = np.linspace(0, 1, 1000)
+    colors_b = [colormap(i / len(b_vals)) for i in range(len(b_vals))]
+    colors_h = [colormap(i / len(h_vals)) for i in range(len(h_vals))]
+
+    x, y = locations[:, 0], locations[:, 1]
+
+    with rc_context(rc=custom):
+        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(13, 4), constrained_layout=True)
+
+        axes[0].scatter(x, y, s=10, edgecolors="black", color=color, alpha=0.75, linewidth=0.5)
+        axes[0].set_xticks([])
+        axes[0].set_yticks([])
+        axes[0].set_xlabel("")
+        axes[0].set_ylabel("")
+        axes[0].margins(0)
+        for spine in axes[0].spines.values():
+            spine.set_visible(False)
+
+        for b, c in zip(b_vals, colors_b):
+            prob = 1 / (1 + (distances / b) ** fixed_h)
+            axes[1].plot(distances, prob, label=f"$b={b}$", color=c, linewidth=1)
+
+        legend = axes[1].legend(loc="upper right", bbox_to_anchor=(1, 1), ncol=1, borderaxespad=0, frameon=True, fancybox=False)
+        legend.set_title(f"Fixed $h={fixed_h}$", prop={"size": 8.5})
+        frame = legend.get_frame()
+        frame.set_edgecolor("black")
+        frame.set_linewidth(0.5)
+
+        axes[1].set_title(f"\nEffect of Characteristic Length Scale ($b$)\n", fontsize=8.5)
+        axes[1].set_ylabel("\nSDA Connection Probability\n")
+        axes[1].set_xlabel("\nDistance\n")
+
+        for h, c in zip(h_vals, colors_h):
+            prob = 1 / (1 + (distances / fixed_b) ** h)
+            axes[2].plot(distances, prob, label=f"$h={h}$", color=c, linewidth=1)
+
+        legend = axes[2].legend(loc="upper right", bbox_to_anchor=(1, 1), ncol=1, borderaxespad=0, frameon=True, fancybox=False)
+        legend.set_title(f"Fixed $b={fixed_b}$", prop={"size": 8.5})
+        frame = legend.get_frame()
+        frame.set_edgecolor("black")
+        frame.set_linewidth(0.5)
+
+        axes[2].set_title(f"\nEffect of Homophily ($h$)\n", fontsize=8.5)
+        axes[2].set_ylabel("\nSDA Connection Probability\n")
+        axes[2].set_xlabel("\nDistance\n")
+
+        for ax in axes:
+            ax.set_aspect("equal")
+
+        for ax in axes[1:]:
+            line = lines.Line2D([0, 1], [1.05, 1.05], transform=ax.transAxes,
+                                color="black", linewidth=0.5, clip_on=False)
+            ax.add_artist(line)
+
+        return fig
+
 def plot_sda_probability_by_distance(b_vals, h_vals, fixed_b, fixed_h, colormap=None):
     custom = {
         "text.usetex": False,
@@ -80,9 +170,9 @@ def plot_sda_probability_by_distance(b_vals, h_vals, fixed_b, fixed_h, colormap=
         axes[1].set_xlabel("\nDistance\n")
 
         for ax in axes:
-            divider = lines.Line2D([0, 1], [1.05, 1.05], transform=ax.transAxes,
-                                   color="black", linewidth=0.5, clip_on=False)
-            ax.add_artist(divider)
+            line = lines.Line2D([0, 1], [1.05, 1.05], transform=ax.transAxes,
+                                color="black", linewidth=0.5, clip_on=False)
+            ax.add_artist(line)
 
         return fig
 
@@ -600,5 +690,122 @@ def plot_local_metrics(dataframe, params, labels, mode, threshold=0.90, degs=("d
             spine.set_visible(True)
             spine.set_linewidth(0.5)
             spine.set_edgecolor("black")
+
+        return fig
+
+def plot_joint_probabilities(sda_probabilities, degree_sequence_probabilities, color=None):
+    custom = {
+        "text.usetex": False,
+        "pdf.fonttype": 42,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman"],
+        "mathtext.fontset": "stix",
+        "font.size": 8.5,
+        "legend.fontsize": 8.5,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.axisbelow": True,
+        "axes.linewidth": 0.5,
+        "axes.edgecolor": "black",
+        "grid.linewidth": 0.5,
+        "grid.color": "black",
+        "patch.linewidth": 0.5,
+        "patch.edgecolor": "black",
+        "xtick.major.width": 0.5,
+        "ytick.major.width": 0.5,
+        "xtick.minor.width": 0.5,
+        "ytick.minor.width": 0.5,
+        "xtick.major.size": 3.0,
+        "ytick.major.size": 3.0,
+        "xtick.minor.size": 2.0,
+        "ytick.minor.size": 2.0,
+        "xtick.direction": "out",
+        "ytick.direction": "out",
+        "xtick.color": "black",
+        "ytick.color": "black",
+        "xtick.labelsize": 8.5,
+        "ytick.labelsize": 8.5
+    }
+    
+    with rc_context(rc=custom):
+        fig, ax = plt.subplots(1, 1, figsize=(6.5, 3), constrained_layout=True)
+        ax.scatter(degree_sequence_probabilities, sda_probabilities,
+                   s=10, edgecolors="black", color=color, alpha=0.75, linewidth=0.5)
+        ax.set_xlabel(f"\nDegree Sequence Probability\n")
+        ax.set_ylabel(f"\nSDA Connection Probability\n")
+        ax.set_title("\n", fontsize=8.5)
+
+    return fig
+
+def plot_global_metrics_line_graphs(dataframe, params, labels, refine=None, aggfunc="mean", palette=None):
+    custom = {
+        "text.usetex": False,
+        "pdf.fonttype": 42,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman"],
+        "mathtext.fontset": "stix",
+        "font.size": 8.5,
+        "legend.fontsize": 8.5,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.axisbelow": True,
+        "axes.linewidth": 0.5,
+        "axes.edgecolor": "black",
+        "grid.linewidth": 0.5,
+        "grid.color": "black",
+        "patch.linewidth": 0.5,
+        "patch.edgecolor": "black",
+        "xtick.major.width": 0.5,
+        "ytick.major.width": 0.5,
+        "xtick.minor.width": 0.5,
+        "ytick.minor.width": 0.5,
+        "xtick.major.size": 3.0,
+        "ytick.major.size": 3.0,
+        "xtick.minor.size": 2.0,
+        "ytick.minor.size": 2.0,
+        "xtick.direction": "out",
+        "ytick.direction": "out",
+        "xtick.color": "black",
+        "ytick.color": "black",
+        "xtick.labelsize": 8.5,
+        "ytick.labelsize": 8.5
+    }
+
+    df = dataframe.copy()
+    for key, value in (refine or {}).items():
+        df = df[df[key] == value]
+
+    model_ids = df["model_id"].unique()
+    n_rows = len(params)
+
+    with rc_context(rc=custom):
+        fig, axes = plt.subplots(n_rows, 1, figsize=(6.5, 3 * n_rows),
+                                 sharex=False, sharey=False, constrained_layout=True)
+
+        if n_rows == 1:
+            axes = [axes]
+
+        for i, (param, label) in enumerate(zip(params, labels)):
+            ax = axes[i]
+            x_key = param["x"]
+            y_key = param["y"]
+
+            for model_id in model_ids:
+                sub = df[df["model_id"] == model_id]
+                grouped = sub.groupby(x_key)[y_key].agg(aggfunc).sort_index()
+                ax.plot(grouped.index, grouped.values, label=model_id, color=palette[model_id], linewidth=1)
+
+            ax.set_title(f"\n{label['title']}\n", fontsize=8.5)
+            ax.set_xlabel(f"\n{label['x']}\n", fontsize=8.5)
+            ax.set_ylabel(f"\n{label['y']}\n", fontsize=8.5)
+
+            legend = ax.legend(loc="upper left", bbox_to_anchor=(0, 1), ncol=1, borderaxespad=0, frameon=True, fancybox=False)
+            frame = legend.get_frame()
+            frame.set_edgecolor("black")
+            frame.set_linewidth(0.5)
+
+            line = lines.Line2D([0, 1], [1.05, 1.05], transform=ax.transAxes,
+                                color="black", linewidth=0.5, clip_on=False)
+            ax.add_artist(line)
 
         return fig

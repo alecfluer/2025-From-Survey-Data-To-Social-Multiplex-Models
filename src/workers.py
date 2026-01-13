@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+import pandas as pd
 import scipy
 import sdcdp
 
@@ -162,3 +163,63 @@ def metrics_undirected(networks):
     metrics["joint_deg_distributions"] = joint_deg_distributions
 
     return metrics
+
+def worker_for_networks_minor(degree_sequence, probabilities, compare_models, samples=1):
+
+    metrics = []
+    distributions = []
+
+    for model_id, model_function in compare_models.items():
+        
+        E1 = 0
+        E2 = 0
+        degrees = set()
+        deg_number_of_nodes_pre = {}
+        deg_number_of_nodes_post = {}
+
+        for _ in range(samples):
+            net_pre = model_function(degree_sequence=degree_sequence, probabilities=probabilities)
+            net_post = nx.Graph(net_pre)
+            net_post.remove_edges_from(nx.selfloop_edges(net_post))
+
+            E1 += len(net_pre.edges())
+            E2 += len(net_post.edges())
+        
+            for node in net_pre.nodes():
+                d_pre = net_pre.degree(node)
+                d_post = net_post.degree(node)
+
+                if d_pre not in degrees:
+                    degrees.add(d_pre)
+                    deg_number_of_nodes_pre[d_pre] = 0
+                    deg_number_of_nodes_post[d_pre] = 0
+
+                if d_post not in degrees:
+                    degrees.add(d_post)
+                    deg_number_of_nodes_pre[d_post] = 0
+                    deg_number_of_nodes_post[d_post] = 0
+                
+                deg_number_of_nodes_pre[d_pre] += 1
+                deg_number_of_nodes_post[d_post] += 1
+                
+        for d in degrees:
+            distributions.append({
+                "model_id": model_id,
+                "deg": d,
+                "deg_number_of_nodes_pre": deg_number_of_nodes_pre[d],
+                "deg_number_of_nodes_post": deg_number_of_nodes_post[d],
+            })
+        
+        metrics.append({
+            "model_id": model_id,
+            "number_of_net_edges_global_pre": E1,
+            "number_of_net_edges_global_post": E2,
+            "number_of_net_dropped_edges": E1 - E2,
+            "proportion_of_net_dropped_edges": (E1 - E2) / E1
+        })
+    
+    metrics = pd.DataFrame(metrics)
+    distributions = pd.DataFrame(distributions)
+    distributions = distributions.sort_values(by=["model_id", "deg"]).reset_index(drop=True)
+    
+    return metrics, distributions

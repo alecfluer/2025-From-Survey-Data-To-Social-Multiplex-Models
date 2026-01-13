@@ -2,24 +2,27 @@
 
 ## **Overview**
 
-This repository accompanies the manuscript [*From survey data to social multiplex models: Incorporating interlayer correlation from multiple data sources*](#references). It includes the results and figures presented in the manuscript. It provides simulation and analysis workflows for generating and evaluating social multiplex networks from both synthetic data and survey-derived data.
+This repository accompanies the manuscript [*From survey data to social multiplex models: Incorporating interlayer correlation from multiple data sources*](#references). It includes select results and figures presented in the manuscript. It provides simulation and analysis workflows for generating and evaluating social multiplex networks from both synthetic data and survey-derived data. Other information can be made available upon request.
 
 ## **Authors**
 
 - Alec Fluer, Ian Laga, Logan Graham, Breschine Cummins  
-    Department of Mathematical Sciences, Montana State University, Bozeman, MT, USA  
+    Department of Mathematical Sciences, Montana State University, Bozeman, MT, USA
     - Lead author: alecfluer@montana.edu  
     - Corresponding author: breschine.cummins@montana.edu
 
 - Ellen Almirol  
-    University of Chicago, Chicago, IL, USA
+    The Chicago Center for HIV Elimination, University of Chicago, Chicago, IL, USA
 
 - Makenna Meyer  
-    North Carolina State University, Raleigh, NC, USA
+    Department of Statistics, North Carolina State University, Raleigh, NC, USA
+
+- John A. Schneider  
+    Department of Public Health Sciences, University of Chicago, Chicago, IL, USA
 
 ## **Data**
 
-Data includes reconstructed degree sequences from uConnect survey responses and merged U.S. Census Bureau data. Pending DUA.
+U.S. Census Bureau data retrieved from [Chicago Data Portal](#references). uConnect survey data cannot be redistributed without approval. See [Morgan et al. (2015)](#references) for further information on uConnect survey data.
 
 ## **Results**
 
@@ -82,5 +85,16 @@ This software is licensed under the MIT License. See LICENSE for details.
 
 ## **References**
 
-Alec Fluer, Ian Laga, Logan Graham, Ellen Almirol, Makenna Meyer, and Breschine Cummins.  
-From survey data to social multiplex models: Incorporating interlayer correlation from multiple data sources. In preparation.
+Alec Fluer, Ian Laga, Logan Graham, Ellen Almirol, Makenna Meyer, John A. Schneider, and Breschine Cummins.  
+From survey data to social multiplex models: Incorporating interlayer correlation from multiple data sources. In revision.
+
+E Morgan, B Skaathun, S Michaels, L Young, A Khanna, SR Friedman, B Davis, D Pitrak, J Schneider,
+and UConnect Study Team.  
+Marijuana use as a sexdrug is associated with hiv risk among black msm and
+their network. AIDS Behav, page 600–607, 2015. doi: https://doi.org/10.1007/s10461-015-1195-7.
+
+Chicago Data Portal. Population by 2010 census block.  
+https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Population-by-2010-Census-Block/5yjb-v3mj/data_preview. Accessed 2025-05-14.
+
+Chicago Data Portal. Boundaries- census blocks- 2010.  
+https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Census-Blocks-2010/mfzt-js4n. Accessed 2025-05-14.
